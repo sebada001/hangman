@@ -11,8 +11,8 @@ class Saves
     puts 'Want to load a game? y/n'
     return unless gets.chomp == 'y'
 
-    game_array = Player.new(YAML.safe_load(File.read('saves.yml')))
-    p game_array
+    game_state = Player.new(YAML.safe_load(File.read('saves.yml')))
+    p game_state
   end
 
   def save_game(game_to_save)
