@@ -1,21 +1,22 @@
 require './player'
 
 class Game
-  attr_reader :secret_word
+  attr_reader :secret_word, :name, :game_loop, :display_current_guess, :current_guess
 
-  def initialize (secret_word = nil, current_guess = '', player = nil)
+  require 'yaml'
+
+  def initialize (secret_word = nil, player = nil)
     words_array = []
     words = File.readlines('google-10000-english-no-swears.txt')
     words.each { |line| words_array.push(line[0..-2]) if line.length >= 5 && line.length <= 12 }
     @alphabet = ('a'..'z').to_a
     @secret_word = secret_word.nil? ? words_array.sample(1)[0] : secret_word
     @secret_length = @secret_word.length
-    @current_guess = current_guess
-    if @current_guess == ''
-      @secret_length.times { @current_guess << '_' }
-    end
+    @current_guess = ''
+    @secret_length.times { @current_guess << '_' }
     @player = player.nil? ? Player.new : player
     @game_won = false
+    @name = @player.name
   end
 
   def display_current_guess
@@ -56,31 +57,75 @@ class Game
 
   def play_game
     display_current_guess
-    game_loop
-    message =
-      if @game_won
-        "You won! The secret word was #{@secret_word}"
-      else
-        "You lost! The secret word was #{@secret_word}"
-      end
-    p message
-  end
-
-  def game_loop
-    while @game_won == false && @player.score.positive?
-      make_guess
-      @player.lower_score
+    p 'Type `save` to save the game at any time, and `load` to load it back up!'
+    case game_loop
+    when false || 'loaded'
       @game_won = check_win
-      break if @game_won
-
-      @player.print_score
+      message =
+        if @game_won
+          "You won! The secret word was #{@secret_word}"
+        else
+          "You lost! The secret word was #{@secret_word}"
+        end
+      p message
+    when 'saved'
+      p 'Game saved!, you can quit now and come back to play later!'
     end
   end
 
-  def make_guess
-    guess = gets.chomp[0]
-    guess = guess.nil? ? 'x' : guess.downcase
-    evaluate_guess(guess)
+  def game_loop
+    game_saved = false
+    while @game_won == false && @player.score.positive?
+      case make_guess
+      when 'saved'
+        game_saved = 'saved'
+        break
+      when 'loaded'
+        game_saved = 'loaded'
+        break
+      else
+        game_saved = false
+        @player.lower_score
+        @game_won = check_win
+        break if @game_won
+
+        @player.print_score
+      end
+    end
+    game_saved
   end
+
+  def make_guess
+    guess = gets.chomp
+    case guess
+    when 'save'
+      save_game(self)
+      'saved'
+    when 'load'
+      game = load_game
+      game.game_loop
+      'loaded'
+    else
+      guess = guess[0]
+      guess = guess.nil? ? 'x' : guess.downcase
+      evaluate_guess(guess)
+    end
+  end
+
+  def load_game
+    current_game = YAML.safe_load(File.read('saves.yml'), permitted_classes: [Player, Game])
+    p 'game loaded!'
+    p "#{current_game.name} welcome back!"
+    current_game.display_current_guess
+    @secret_word = current_game.secret_word
+    @secret_length = @secret_word.length
+    @current_guess = current_game.current_guess
+    current_game
+  end
+
+  def save_game(game_to_save)
+    File.open('saves.yml', 'w') { |file| file.write(game_to_save.to_yaml) }
+  end
+
   p 'Welcome to hangman! You have 15 chances to guess a secret word!'
 end
