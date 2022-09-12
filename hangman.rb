@@ -1,7 +1,7 @@
-require './player'
+require './game'
 
 class Saves
-  require "yaml"
+  require 'yaml'
 
   def initialize
     @saves = []
@@ -11,8 +11,7 @@ class Saves
     puts 'Want to load a game? y/n'
     return unless gets.chomp == 'y'
 
-    game_state = Player.new(YAML.safe_load(File.read('saves.yml')))
-    p game_state
+    game_state = YAML.safe_load(File.read('saves.yml'), permitted_classes: [Player, Game])
   end
 
   def save_game(game_to_save)
@@ -20,7 +19,8 @@ class Saves
   end
 end
 
-player_me = Player.new
+current_game = Game.new
 saves = Saves.new
-saves.save_game(player_me)
-saves.load_game
+saves.save_game(current_game)
+new_current_game = saves.load_game
+new_current_game.play_game

@@ -1,35 +1,35 @@
---- !ruby/object:Player
-name: tito oloco
-score: 15
+--- !ruby/object:Game
+alphabet:
+- a
+- b
+- c
+- d
+- e
+- f
+- g
+- h
+- i
+- j
+- k
+- l
+- m
+- "n"
+- o
+- p
+- q
+- r
+- s
+- t
+- u
+- v
+- w
+- x
+- "y"
+- z
+secret_word: abortion
+secret_length: 8
+current_guess: ________
+player: !ruby/object:Player
+  name: Tito el krezo
+  score: 15
 game_won: false
-game: !ruby/object:Game
-  alphabet:
-  - a
-  - b
-  - c
-  - d
-  - e
-  - f
-  - g
-  - h
-  - i
-  - j
-  - k
-  - l
-  - m
-  - "n"
-  - o
-  - p
-  - q
-  - r
-  - s
-  - t
-  - u
-  - v
-  - w
-  - x
-  - "y"
-  - z
-  secret_word: dock
-  secret_length: 4
-  current_guess: ____
